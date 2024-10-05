@@ -1,0 +1,46 @@
+import React, { useState } from 'react';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Store } from '@fleetbase/storefront';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { translate, config } from 'utils';
+import { useLocale, useFilesystem } from 'hooks';
+import FastImage from 'react-native-fast-image';
+import tailwind from 'tailwind';
+
+const StorePhotosWidget = ({ info, store, storeLocation, wrapperStyle, containerStyle, onMediaPress, onViewMorePress }) => {
+    const [locale] = useLocale();
+    const {getUrl} = useFilesystem()
+
+    const viewMedia = (media) => {
+        if (typeof onMediaPress === 'function') {
+            onMediaPress(media);
+        }
+    };
+
+    if (!store.getAttribute('media', [])) {
+        return <View />;
+    }
+
+    return (
+        <View style={[wrapperStyle]}>
+            <View style={[tailwind('bg-white'), containerStyle]}>
+                <TouchableOpacity onPress={onViewMorePress} style={tailwind('px-4 pt-4 pb-2 flex flex-row items-center justify-between')}>
+                    <Text style={tailwind('font-bold text-lg text-black mb-2')}>{translate('components.widgets.StorePhotosWidget.title')}</Text>
+                    <View>
+                        <FontAwesomeIcon icon={faArrowRight} />
+                    </View>
+                </TouchableOpacity>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={tailwind('flex flex-row p-4')}>
+                    {store.getAttribute('media', []).map((media, index) => (
+                        <TouchableOpacity key={index} onPress={() => viewMedia(media)} style={tailwind('mr-3')}>
+                            <FastImage source={{ uri: getUrl(media.url) }} style={tailwind('border-4 border-gray-900 w-36 h-36')} />
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+        </View>
+    );
+};
+
+export default StorePhotosWidget;

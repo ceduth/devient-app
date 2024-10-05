@@ -1,20 +1,52 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+/**
+ * Storefront Ecommerce for On-Demand
+ *
+ * @format
+ * @flow strict-local
+ */
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
+import { ActivityIndicator, LogBox, Platform, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import tailwind from './src/tailwind';
+import CoreStack from './src/features/Core/CoreStack';
+import { config } from './src/utils';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const isAndroid = Platform.OS === 'android';
+const Stack = createStackNavigator();
+
+const linking = {
+    prefixes: [config('APP_LINK_PREFIX'), ...config('app.linkingPrefixes')].filter(Boolean),
+    config: {
+        screens: {
+            StoreScreen: 'store/:id',
+        },
+    },
+};
+
+const App = () => Node = () => {
+    LogBox.ignoreLogs(['RCTUIManager.measureLayoutRelativeToParent']);
+
+    return (
+        <SafeAreaProvider>
+            <NavigationContainer
+                linking={linking}
+                fallback={
+                    <View style={tailwind('bg-white flex items-center justify-center w-full h-full')}>
+                        <View style={tailwind('flex items-center justify-center')}>
+                            <ActivityIndicator style={tailwind('mb-4')} />
+                            <Text style={tailwind('text-gray-700')}>Loading...</Text>
+                        </View>
+                    </View>
+                }>
+                <Stack.Navigator>
+                    <Stack.Screen name="CoreStack" component={CoreStack} options={{ headerShown: false, animationEnabled: false, gestureEnabled: false }} />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </SafeAreaProvider>
+    );
+};
+
+export default App;
